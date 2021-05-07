@@ -10,7 +10,7 @@ defmodule ElixirScript.Translate.Forms.Pattern do
   @doc """
   Handles all pattern matching translations
   """
-  @spec compile(list(), map()) :: { list(), list(), map() }
+  @spec compile(list(), map()) :: {list(), list(), map()}
   def compile(patterns, state) do
     patterns
     |> do_compile(state)
@@ -19,32 +19,41 @@ defmodule ElixirScript.Translate.Forms.Pattern do
 
   defp do_compile(patterns, state) do
     Enum.reduce(patterns, {[], []}, fn
-      x, { patterns, params } ->
+      x, {patterns, params} ->
         {pattern, param} = process_pattern(x, state)
-        { patterns ++ List.wrap(pattern), params ++ List.wrap(param) }
+        {patterns ++ List.wrap(pattern), params ++ List.wrap(param)}
     end)
   end
 
-  defp update_env({ patterns, params }, state) do
-    { params, state } = Enum.map_reduce(params, state, fn
-      (%ESTree.Identifier{name: :undefined} = param, state) ->
-        { param, state }
+  defp update_env({patterns, params}, state) do
+    {params, state} =
+      Enum.map_reduce(params, state, fn
+        %ESTree.Identifier{name: :undefined} = param, state ->
+          {param, state}
 
-      (%ESTree.Identifier{} = param, state) ->
-       state = update_variable(param.name, state)
-       new_name = get_variable_name(param.name, state)
+        %ESTree.Identifier{} = param, state ->
+          state = update_variable(param.name, state)
+          new_name = get_variable_name(param.name, state)
 
-       { %{ param | name: new_name }, state }
+          {%{param | name: new_name}, state}
 
-      (param, state) ->
-        { param, state }
-    end)
+        param, state ->
+          {param, state}
+      end)
 
-    { patterns, params, state }
+    {patterns, params, state}
   end
 
   @spec get_variable_name(atom(), map()) :: atom()
   def get_variable_name(function, state) do
+    # TODO(alex): only happens on new elixir, investigate why
+    state =
+      if Map.has_key?(state, :vars) do
+        state
+      else
+        Map.put(state, :vars, %{})
+      end
+
     number = Map.get(state.vars, function)
     String.to_atom("#{function}#{number}")
   end
@@ -54,61 +63,66 @@ defmodule ElixirScript.Translate.Forms.Pattern do
     Map.put(state, :vars, vars)
   end
 
-  defp process_pattern(term, state) when is_number(term) or is_binary(term) or is_boolean(term) or is_atom(term) or is_nil(term) do
-    { [Form.compile!(term, state)], [] }
+  defp process_pattern(term, state)
+       when is_number(term) or is_binary(term) or is_boolean(term) or is_atom(term) or
+              is_nil(term) do
+    {[Form.compile!(term, state)], []}
   end
 
   defp process_pattern({:^, _, [value]}, state) do
-    { [PM.bound(Form.compile!(value, state))], [] }
+    {[PM.bound(Form.compile!(value, state))], []}
   end
 
   defp process_pattern({:_, _, _}, _) do
-    { [PM.parameter(J.literal("_"))], [] }
+    {[PM.parameter(J.literal("_"))], []}
   end
 
   defp process_pattern({a, b}, state) do
-    process_pattern({:{}, [], [a, b] }, state)
+    process_pattern({:{}, [], [a, b]}, state)
   end
 
-  defp process_pattern({:{}, _, elements }, state) do
-    { patterns, params } = elements
-    |> Enum.map(&do_compile([&1], state))
-    |> reduce_patterns(state)
+  defp process_pattern({:{}, _, elements}, state) do
+    {patterns, params} =
+      elements
+      |> Enum.map(&do_compile([&1], state))
+      |> reduce_patterns(state)
 
-    pattern = J.object_expression([
-      J.property(
-        J.identifier("values"),
-        J.array_expression(patterns)
-      )
+    pattern =
+      J.object_expression([
+        J.property(
+          J.identifier("values"),
+          J.array_expression(patterns)
+        )
       ])
 
     tuple = Helpers.tuple()
 
-    { [PM.type(tuple, pattern)], params }
+    {[PM.type(tuple, pattern)], params}
   end
 
   defp process_pattern([{:|, _, [head, tail]}], state) do
-    { head_patterns, head_params } = process_pattern(head, state)
-    { tail_patterns, tail_params } = process_pattern(tail, state)
+    {head_patterns, head_params} = process_pattern(head, state)
+    {tail_patterns, tail_params} = process_pattern(tail, state)
     params = head_params ++ tail_params
 
-    { [PM.head_tail(hd(head_patterns), hd(tail_patterns))], params }
+    {[PM.head_tail(hd(head_patterns), hd(tail_patterns))], params}
   end
 
   defp process_pattern(list, state) when is_list(list) do
-    { patterns, params } = list
-    |> Enum.map(&do_compile([&1], state))
-    |> reduce_patterns(state)
+    {patterns, params} =
+      list
+      |> Enum.map(&do_compile([&1], state))
+      |> reduce_patterns(state)
 
     {[J.array_expression(patterns)], params}
   end
 
   defp process_pattern({:|, _, [head, tail]}, state) do
-    { head_patterns, head_params } = process_pattern(head, state)
-    { tail_patterns, tail_params } = process_pattern(tail, state)
+    {head_patterns, head_params} = process_pattern(head, state)
+    {tail_patterns, tail_params} = process_pattern(tail, state)
     params = head_params ++ tail_params
 
-    { [PM.head_tail(hd(head_patterns), hd(tail_patterns))], params }
+    {[PM.head_tail(hd(head_patterns), hd(tail_patterns))], params}
   end
 
   defp process_pattern({{:., _, [:erlang, :++]}, context, [head, tail]}, state) do
@@ -120,132 +134,164 @@ defmodule ElixirScript.Translate.Forms.Pattern do
   end
 
   defp process_pattern({:%{}, _, props}, state) do
-    properties = Enum.map(props, fn
-      {:__module__struct__, {_, _, nil} = var } ->
-       {pattern, params} = process_pattern(var, state)
+    properties =
+      Enum.map(props, fn
+        {:__module__struct__, {_, _, nil} = var} ->
+          {pattern, params} = process_pattern(var, state)
 
-        a = J.object_expression([%ESTree.Property{
-          key: J.identifier("__MODULE__"),
-          value: hd(List.wrap(pattern))
-        }])
+          a =
+            J.object_expression([
+              %ESTree.Property{
+                key: J.identifier("__MODULE__"),
+                value: hd(List.wrap(pattern))
+              }
+            ])
 
-        property = J.array_expression([
-          Form.compile!(:__struct__, state),
-          a
-        ])
+          property =
+            J.array_expression([
+              Form.compile!(:__struct__, state),
+              a
+            ])
 
-        { property, params }
+          {property, params}
 
-      {:__module__struct__, module} ->
-        a = J.object_expression([%ESTree.Property{
-          key: J.identifier("__MODULE__"),
-          value: Helpers.symbol(to_string(module))
-        }])
+        {:__module__struct__, module} ->
+          a =
+            J.object_expression([
+              %ESTree.Property{
+                key: J.identifier("__MODULE__"),
+                value: Helpers.symbol(to_string(module))
+              }
+            ])
 
-        property = J.array_expression([
-          Form.compile!(:__struct__, state),
-          a
-        ])
+          property =
+            J.array_expression([
+              Form.compile!(:__struct__, state),
+              a
+            ])
 
-        { property, [] }
+          {property, []}
 
-      {key, value} ->
-        {pattern, params} = process_pattern(value, state)
-        property = case key do
-                    {:^, _, [the_key]} ->
-                      J.array_expression([
-                        Form.compile!(the_key, state),
-                        hd(List.wrap(pattern))
-                      ])
-                    _ ->
-                      J.array_expression([
-                        Form.compile!(key, state),
-                        hd(List.wrap(pattern))
-                      ])
-                  end
+        {key, value} ->
+          {pattern, params} = process_pattern(value, state)
 
-        { property, params }
-    end)
+          property =
+            case key do
+              {:^, _, [the_key]} ->
+                J.array_expression([
+                  Form.compile!(the_key, state),
+                  hd(List.wrap(pattern))
+                ])
 
-    {props, params} = Enum.reduce(properties, {[], []}, fn({prop, param}, {props, params}) ->
-      { props ++ [prop], params ++ param }
-    end)
+              _ ->
+                J.array_expression([
+                  Form.compile!(key, state),
+                  hd(List.wrap(pattern))
+                ])
+            end
 
-    ast = Helpers.new(
-      J.identifier("Map"),
-      [
-        J.array_expression(List.wrap(props))
-      ]
-    )
+          {property, params}
+      end)
 
-    { [ast], params }
+    {props, params} =
+      Enum.reduce(properties, {[], []}, fn {prop, param}, {props, params} ->
+        {props ++ [prop], params ++ param}
+      end)
+
+    ast =
+      Helpers.new(
+        J.identifier("Map"),
+        [
+          J.array_expression(List.wrap(props))
+        ]
+      )
+
+    {[ast], params}
   end
 
   defp process_pattern({:<<>>, _, elements}, state) do
-    params = Enum.reduce(elements, [], fn
-      ({:::, _, [{ _, _, params } = ast, _]}, state) when is_nil(params)
-                                                      when is_list(params) and length(params) == 0 ->
+    params =
+      Enum.reduce(elements, [], fn
+        {:"::", _, [{_, _, params} = ast, _]}, state
+        when is_nil(params)
+        when is_list(params) and length(params) == 0 ->
+          var_str = make_identifier(ast)
+          var_atom = String.to_atom(var_str)
+          state ++ [ElixirScript.Translate.Identifier.make_identifier(var_atom)]
 
-        var_str = make_identifier(ast)
-        var_atom = String.to_atom(var_str)
-        state ++ [ElixirScript.Translate.Identifier.make_identifier(var_atom)]
-      _, state ->
-        state
-    end)
+        _, state ->
+          state
+      end)
 
-    elements = Enum.map(elements, fn
-      ({:::, context, [{ _, _, params }, options]}) when is_atom(params) ->
-        Bitstring.compile_element({:::, context, [ElixirScript.Translate.Forms.Pattern.Patterns, options]}, state)
-      x ->
-        Bitstring.compile_element(x, state)
-    end)
+    elements =
+      Enum.map(elements, fn
+        {:"::", context, [{_, _, params}, options]} when is_atom(params) ->
+          Bitstring.compile_element(
+            {:"::", context, [ElixirScript.Translate.Forms.Pattern.Patterns, options]},
+            state
+          )
 
-    { [PM.bitstring_match(elements)], params }
+        x ->
+          Bitstring.compile_element(x, state)
+      end)
+
+    {[PM.bitstring_match(elements)], params}
   end
 
   defp process_pattern({:<>, _, [prefix, value]}, state) do
-    { [PM.starts_with(prefix)], [Form.compile!(value, state)] }
+    {[PM.starts_with(prefix)], [Form.compile!(value, state)]}
   end
 
-  defp process_pattern({:=, _, [{name, _, _} = target, right]}, state) when name not in [:%, :{}, :^, :%{}, :<<>>] do
+  defp process_pattern({:=, _, [{name, _, _} = target, right]}, state)
+       when name not in [:%, :{}, :^, :%{}, :<<>>] do
     unify(target, right, state)
   end
 
-  defp process_pattern({:=, _, [left, {name, _, _} = target]}, state) when name not in [:%, :{}, :^, :%{}, :<<>>] do
+  defp process_pattern({:=, _, [left, {name, _, _} = target]}, state)
+       when name not in [:%, :{}, :^, :%{}, :<<>>] do
     unify(target, left, state)
   end
 
   defp process_pattern({_, _, a} = ast, _) when is_atom(a) do
     var_str = make_identifier(ast)
     var_atom = String.to_atom(var_str)
-    { [PM.parameter(J.literal(var_str))], [ElixirScript.Translate.Identifier.make_identifier(var_atom)] }
+
+    {[PM.parameter(J.literal(var_str))],
+     [ElixirScript.Translate.Identifier.make_identifier(var_atom)]}
   end
 
   defp process_pattern(ast, state) do
-    { [Form.compile!(ast, state)], [] }
+    {[Form.compile!(ast, state)], []}
   end
 
   defp reduce_patterns(patterns, _) do
     patterns
-    |> Enum.reduce({ [], [] }, fn({ pattern, new_param }, { patterns, new_params }) ->
-      { patterns ++ List.wrap(pattern), new_params ++ List.wrap(new_param) }
+    |> Enum.reduce({[], []}, fn {pattern, new_param}, {patterns, new_params} ->
+      {patterns ++ List.wrap(pattern), new_params ++ List.wrap(new_param)}
     end)
   end
 
   defp unify(target, source, state) do
-    { patterns, params } = do_compile([source], state)
-    { [_] , [param] } = process_pattern(target, state)
-    { [PM.capture(hd(patterns))], params ++ [param] }
+    {patterns, params} = do_compile([source], state)
+    {[_], [param]} = process_pattern(target, state)
+    {[PM.capture(hd(patterns))], params ++ [param]}
   end
 
   @spec get_counter(keyword) :: binary
   def get_counter(meta) do
-    case Keyword.get(meta, :counter, nil) do
-      nil -> ""
-      {_module, value} ->
-        value
-        |> Kernel.abs()
-        |> to_string()
+    # TODO(alex): check why it sends :env as meta
+    if is_atom(meta) do
+      ""
+    else
+      case Keyword.get(meta, :counter, nil) do
+        nil ->
+          ""
+
+        {_module, value} ->
+          value
+          |> Kernel.abs()
+          |> to_string()
+      end
     end
   end
 

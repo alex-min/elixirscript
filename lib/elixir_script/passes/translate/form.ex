@@ -435,8 +435,9 @@ defmodule ElixirScript.Translate.Form do
     {ElixirScript.Translate.Identifier.make_identifier(var), state}
   end
 
-  def compile(other, state) do
-    {J.identifier("null"), state}
+  def compile(function, state) do
+    # TODO(Alex): some Inspect.inspect/2 arrives here (?)
+    {nil, state}
   end
 
   defp compile_params(params, state) do
