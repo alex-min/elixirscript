@@ -238,10 +238,11 @@ defmodule ElixirScript.Translate.Forms.Pattern do
     { [PM.capture(hd(patterns))], params ++ [param] }
   end
 
+  @spec get_counter(keyword) :: binary
   def get_counter(meta) do
     case Keyword.get(meta, :counter, nil) do
       nil -> ""
-      {module, value} ->
+      {_module, value} ->
         value
         |> Kernel.abs()
         |> to_string()

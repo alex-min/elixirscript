@@ -112,7 +112,7 @@ defmodule ElixirScript.Translate.Form do
           b when is_binary(b) ->
             true
 
-          {:::, _, [_target, {:binary, _, _}]} ->
+          {:"::", _, [_target, {:binary, _, _}]} ->
             true
 
           _ ->
@@ -433,6 +433,10 @@ defmodule ElixirScript.Translate.Form do
     var = ElixirScript.Translate.Identifier.filter_name(var)
     var = Pattern.get_variable_name(var <> counter, state)
     {ElixirScript.Translate.Identifier.make_identifier(var), state}
+  end
+
+  def compile(other, state) do
+    {J.identifier("null"), state}
   end
 
   defp compile_params(params, state) do
