@@ -35,6 +35,10 @@ defmodule ElixirScript.Translate.Identifier do
     :yield
   ]
 
+  defp reserved_keywords_to_string do
+    @js_reserved_words |> Enum.map(&Atom.to_string/1)
+  end
+
   def make_identifier(ast) do
     ast
     |> filter_name
@@ -48,12 +52,17 @@ defmodule ElixirScript.Translate.Identifier do
   def filter_name(name) do
     name = to_string(name)
 
-    if String.contains?(name, ["?", "!"]) do
-      name
-      |> String.replace("?", "__qmark__")
-      |> String.replace("!", "__emark__")
+    if name in reserved_keywords_to_string do
+      "__#{name}__"
     else
-      name
+      if String.contains?(name, ["?", "!", " "]) do
+        name
+        |> String.replace("?", "__qmark__")
+        |> String.replace("!", "__emark__")
+        |> String.replace(" ", "_")
+      else
+        name
+      end
     end
   end
 
