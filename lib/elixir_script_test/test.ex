@@ -88,6 +88,7 @@ defmodule ElixirScript.Test do
   def start(path, _opts \\ %{}) do
     output = Path.join([System.tmp_dir!(), "elixirscript_tests"])
     File.mkdir_p!(output)
+    File.write!("#{output}/package.json", "{\"type\": \"module\"}")
 
     ElixirScript.Compiler.compile(path, output: output)
 

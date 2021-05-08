@@ -1,4 +1,5 @@
 /* eslint strict: off, node/no-unsupported-features: ["error", { version: 4 }] */
+// TODO(alex): rm this file, not needed now
 
 'use strict';
 
@@ -27,7 +28,6 @@ const content =
   }\n})`;
 
 const compiled = vm.runInThisContext(content, scriptOptions);
-
 function makeLoaderFunction() {
   compiled(require, mod, __filename);
   return mod.exports;

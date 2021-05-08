@@ -1,6 +1,5 @@
-require = require('./esm/index.js')(module, { cjs: true, esm: 'js' });
-const runner = require('./testRunner.js').default;
-const Colors = require('./colors.js').default;
+import runner from './testRunner.js';
+import Colors from './colors.js';
 
 const testFiles = process.argv.slice(2);
 console.time('Finished in');
