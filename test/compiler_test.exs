@@ -2,7 +2,7 @@ defmodule ElixirScript.Compiler.Test do
   use ExUnit.Case
 
   test "Can compile one entry module" do
-    result = ElixirScript.Compiler.compile(Version)
+    result = ElixirScript.Compiler.compile(String)
     assert result |> Map.to_list() |> hd |> elem(1) |> Map.get(:js_code) |> is_binary
   end
 
