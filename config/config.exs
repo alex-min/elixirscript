@@ -10,17 +10,19 @@ use Mix.Config
 
 # Sample configuration:
 #
-     config :logger, :console,
-       level: :debug,
-       format: "$date $time [$level] $metadata$message\n",
-       metadata: [:user_id]
+config :logger, :console,
+  level: :debug,
+  format: "$date $time [$level] $metadata$message\n",
+  metadata: [:user_id]
 
-       config :elixir_script,
-         lib_path: nil #The path to the elixirscript core and standard library JavaScript files
+config :elixir_script,
+  # The path to the elixirscript core and standard library JavaScript files
+  lib_path: nil
+
 # It is also possible to import configuration files, relative to this
 # directory. For example, you can emulate configuration per environment
 # by uncommenting the line below and defining dev.exs, test.exs and such.
 # Configuration from the imported file will override the ones defined
 # here (which is why it is important to import them last).
 #
-     import_config "#{Mix.env}.exs"
+import_config "#{Mix.env()}.exs"

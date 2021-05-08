@@ -90,19 +90,21 @@ defmodule ElixirScript.Translate.Helpers do
   end
 
   def declare(%ESTree.Identifier{} = name, value) do
-    declarator = J.variable_declarator(
-      name,
-      value
-    )
+    declarator =
+      J.variable_declarator(
+        name,
+        value
+      )
 
     J.variable_declaration([declarator], :const)
   end
 
   def declare(names, value) when is_list(names) do
-    declarator = J.variable_declarator(
-      J.array_pattern(names),
-      value
-    )
+    declarator =
+      J.variable_declarator(
+        J.array_pattern(names),
+        value
+      )
 
     J.variable_declaration([declarator], :const)
   end
@@ -112,19 +114,21 @@ defmodule ElixirScript.Translate.Helpers do
   end
 
   def declare_let(names, value) when is_list(names) do
-    declarator = J.variable_declarator(
-      J.array_pattern(names),
-      value
-    )
+    declarator =
+      J.variable_declarator(
+        J.array_pattern(names),
+        value
+      )
 
     J.variable_declaration([declarator], :let)
   end
 
   def declare_let(name, value) do
-    declarator = J.variable_declarator(
-      J.identifier(name),
-      value
-    )
+    declarator =
+      J.variable_declarator(
+        J.identifier(name),
+        value
+      )
 
     J.variable_declaration([declarator], :let)
   end
@@ -136,5 +140,4 @@ defmodule ElixirScript.Translate.Helpers do
       value
     )
   end
-
 end

@@ -6,14 +6,18 @@ defmodule ElixirScript.Test.Assertions do
 
   @doc false
   def raise_elixir_script_assert(error, file, line) do
-    reraise(ElixirScript.Test.AssertionError, [
-      left: error.left,
-      right: error.right,
-      message: error.message,
-      expr: error.expr,
-      file: file,
-      line: line
-    ], [])
+    reraise(
+      ElixirScript.Test.AssertionError,
+      [
+        left: error.left,
+        right: error.right,
+        message: error.message,
+        expr: error.expr,
+        file: file,
+        line: line
+      ],
+      []
+    )
   end
 
   @doc """
@@ -22,7 +26,7 @@ defmodule ElixirScript.Test.Assertions do
   defmacro assert(assertion) do
     %{file: file, line: line} = __CALLER__
 
-    quote [file: file, line: line] do
+    quote file: file, line: line do
       try do
         ExUnit.Assertions.assert(unquote(assertion))
       rescue
@@ -42,7 +46,7 @@ defmodule ElixirScript.Test.Assertions do
   defmacro assert(value, message) do
     %{file: file, line: line} = __CALLER__
 
-    quote [file: file, line: line] do
+    quote file: file, line: line do
       try do
         ExUnit.Assertions.assert(unquote(value), unquote(message))
       rescue
@@ -63,7 +67,7 @@ defmodule ElixirScript.Test.Assertions do
   defmacro assert_raise(exception, function) do
     %{file: file, line: line} = __CALLER__
 
-    quote [file: file, line: line] do
+    quote file: file, line: line do
       try do
         ExUnit.Assertions.assert(unquote(exception), unquote(function))
       rescue
@@ -85,7 +89,7 @@ defmodule ElixirScript.Test.Assertions do
   defmacro assert_raise(exception, message, function) do
     %{file: file, line: line} = __CALLER__
 
-    quote [file: file, line: line] do
+    quote file: file, line: line do
       try do
         ExUnit.Assertions.assert(
           unquote(exception),
@@ -109,7 +113,7 @@ defmodule ElixirScript.Test.Assertions do
   defmacro assert_in_delta(value1, value2, delta, message \\ nil) do
     %{file: file, line: line} = __CALLER__
 
-    quote [file: file, line: line] do
+    quote file: file, line: line do
       try do
         ExUnit.Assertions.assert_in_delta(
           unquote(value1),
@@ -134,7 +138,7 @@ defmodule ElixirScript.Test.Assertions do
   defmacro refute(assertion) do
     %{file: file, line: line} = __CALLER__
 
-    quote [file: file, line: line] do
+    quote file: file, line: line do
       try do
         ExUnit.Assertions.assert(unquote(assertion))
       rescue
@@ -154,7 +158,7 @@ defmodule ElixirScript.Test.Assertions do
   defmacro refute(value, message) do
     %{file: file, line: line} = __CALLER__
 
-    quote [file: file, line: line] do
+    quote file: file, line: line do
       try do
         ExUnit.Assertions.assert(unquote(value), unquote(message))
       rescue
@@ -174,7 +178,7 @@ defmodule ElixirScript.Test.Assertions do
   defmacro refute_in_delta(value1, value2, delta, message \\ nil) do
     %{file: file, line: line} = __CALLER__
 
-    quote [file: file, line: line] do
+    quote file: file, line: line do
       try do
         ExUnit.Assertions.refute_in_delta(
           unquote(value1),
@@ -199,7 +203,7 @@ defmodule ElixirScript.Test.Assertions do
   defmacro flunk(message \\ "Flunked!") do
     %{file: file, line: line} = __CALLER__
 
-    quote [file: file, line: line] do
+    quote file: file, line: line do
       try do
         ExUnit.Assertions.flunk(unquote(message))
       rescue

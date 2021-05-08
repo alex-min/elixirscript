@@ -19,16 +19,17 @@ defmodule ElixirScript.Test.Callbacks do
 
   defp do_setup(context, contents, name) do
     contents =
-    case contents do
-      [do: block] ->
-        quote do
-          unquote(block)
-        end
-      _ ->
-        quote do
-          try(unquote(contents))
-        end
-    end
+      case contents do
+        [do: block] ->
+          quote do
+            unquote(block)
+          end
+
+        _ ->
+          quote do
+            try(unquote(contents))
+          end
+      end
 
     context = Macro.escape(context)
     contents = Macro.escape(contents, unquote: true)
@@ -56,18 +57,19 @@ defmodule ElixirScript.Test.Callbacks do
 
   defp do_teardown(context, contents, name) do
     contents =
-    case contents do
-      [do: block] ->
-        quote do
-          unquote(block)
-          :ok
-        end
-      _ ->
-        quote do
-          try(unquote(contents))
-          :ok
-        end
-    end
+      case contents do
+        [do: block] ->
+          quote do
+            unquote(block)
+            :ok
+          end
+
+        _ ->
+          quote do
+            try(unquote(contents))
+            :ok
+          end
+      end
 
     context = Macro.escape(context)
     contents = Macro.escape(contents, unquote: true)
@@ -90,6 +92,7 @@ defmodule ElixirScript.Test.Callbacks do
             unquote(block)
             :ok
           end
+
         _ ->
           quote do
             try(unquote(contents))
@@ -99,9 +102,11 @@ defmodule ElixirScript.Test.Callbacks do
 
     context = Macro.escape(context)
     contents = Macro.escape(contents, unquote: true)
-    name = message
-    |> String.replace(" ", "_")
-    |> String.replace(~r/[^A-Za-z0-9]/, "")
+
+    name =
+      message
+      |> String.replace(" ", "_")
+      |> String.replace(~r/[^A-Za-z0-9]/, "")
 
     name = String.to_atom("__elixirscript_test_case_#{name}")
 
@@ -109,7 +114,7 @@ defmodule ElixirScript.Test.Callbacks do
       def unquote(name)() do
         %{
           message: unquote(message),
-          test: fn(context) -> unquote(contents) end
+          test: fn context -> unquote(contents) end
         }
       end
     end

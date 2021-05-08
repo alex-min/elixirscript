@@ -29,16 +29,18 @@ defmodule ElixirScript.ModuleSystems.Namespace do
   defp make_namespace_body(module_name, body, exports) do
     values = module_name_function_call(module_name, "__exports")
 
-    js_if = JS.if_statement(
-      values,
-      JS.return_statement(values)
-    )
+    js_if =
+      JS.if_statement(
+        values,
+        JS.return_statement(values)
+      )
 
-    exports = if is_nil(exports) do
-      JS.object_expression([])
-    else
-      exports
-    end
+    exports =
+      if is_nil(exports) do
+        JS.object_expression([])
+      else
+        exports
+      end
 
     declaration = Helpers.declare("__exports", exports)
 
@@ -46,17 +48,22 @@ defmodule ElixirScript.ModuleSystems.Namespace do
 
     exports = [JS.return_statement(JS.identifier("__exports"))]
 
-    make = JS.member_expression(
-          Helpers.call(
-            build_namespace(),
-            [JS.identifier("Elixir"), JS.literal(Enum.join(["Elixir"] ++ Module.split(module_name), "."))]
-          ),
-          JS.identifier("__load")
-    )
+    make =
+      JS.member_expression(
+        Helpers.call(
+          build_namespace(),
+          [
+            JS.identifier("Elixir"),
+            JS.literal(Enum.join(["Elixir"] ++ Module.split(module_name), "."))
+          ]
+        ),
+        JS.identifier("__load")
+      )
 
     func_body = JS.block_statement([js_if] ++ body ++ [declaration, assign] ++ exports)
 
     func = Helpers.function([JS.identifier("Elixir")], func_body)
+
     Helpers.assign(
       make,
       func

@@ -38,6 +38,7 @@ defmodule ElixirScript.String do
     case pos > length(str) do
       true ->
         nil
+
       _ ->
         str[pos]
     end
@@ -59,7 +60,7 @@ defmodule ElixirScript.String do
     trim = Keyword.get(options, :trim, false)
     split = str.split(replace, limit)
 
-    Enum.map(split, fn(x) ->
+    Enum.map(split, fn x ->
       if trim do
         x.trim()
       else
@@ -72,15 +73,17 @@ defmodule ElixirScript.String do
   def next_grapheme(""), do: nil
 
   def next_grapheme(str) do
-    { str[0], str.substr(1) }
+    {str[0], str.substr(1)}
   end
 
   def first(nil), do: nil
+
   def first(str) do
     str[0]
   end
 
   def last(nil), do: nil
+
   def last(str) do
     str[length(str) - 1]
   end
@@ -99,8 +102,9 @@ defmodule ElixirScript.String do
 
   def next_codepoint(nil), do: nil
   def next_codepoint(""), do: nil
+
   def next_codepoint(str) do
-    { str[0].codePointAt(0), str.substr(1) }
+    {str[0].codePointAt(0), str.substr(1)}
   end
 
   def reverse(str) do
@@ -131,6 +135,7 @@ defmodule ElixirScript.String do
     case starts_with?(str, hd(prefixes)) do
       true ->
         true
+
       _ ->
         do_starts_with?(str, tl(prefixes))
     end
@@ -152,6 +157,7 @@ defmodule ElixirScript.String do
     case ends_with?(str, hd(suffixes)) do
       true ->
         true
+
       _ ->
         do_ends_with?(str, tl(suffixes))
     end
@@ -177,6 +183,7 @@ defmodule ElixirScript.String do
     case contains?(str, hd(prefixes)) do
       true ->
         true
+
       _ ->
         do_contains?(str, tl(prefixes))
     end

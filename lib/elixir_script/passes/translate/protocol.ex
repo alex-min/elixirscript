@@ -5,27 +5,30 @@ defmodule ElixirScript.Translate.Protocol do
   alias ElixirScript.Translate.{Function, Identifier}
   alias ElixirScript.State, as: ModuleState
 
-
   @doc """
   This compiles and consolidates the given protocol
   """
   def compile(module, %{protocol: true, impls: impls, functions: functions} = info, pid) do
-    object = Enum.map(functions, fn {function, _} ->
-      {Identifier.make_function_name(function), Helpers.function([], J.block_statement([]))}
-    end)
-    |> Enum.map(fn({key, value}) -> ElixirScript.Translate.Forms.Map.make_property(key, value) end)
-    |> J.object_expression
+    object =
+      Enum.map(functions, fn {function, _} ->
+        {Identifier.make_function_name(function), Helpers.function([], J.block_statement([]))}
+      end)
+      |> Enum.map(fn {key, value} ->
+        ElixirScript.Translate.Forms.Map.make_property(key, value)
+      end)
+      |> J.object_expression()
 
-    declaration = Helpers.declare(
-      "protocol",
-      Helpers.call(
-        J.member_expression(
-          Helpers.functions(),
-          J.identifier(:defprotocol)
-        ),
-        [object]
+    declaration =
+      Helpers.declare(
+        "protocol",
+        Helpers.call(
+          J.member_expression(
+            Helpers.functions(),
+            J.identifier(:defprotocol)
+          ),
+          [object]
+        )
       )
-    )
 
     body = build_implementations(impls)
 
@@ -37,10 +40,11 @@ defmodule ElixirScript.Translate.Protocol do
   end
 
   defp build_implementations(impls) do
-    Enum.map(impls, fn({impl, impl_for}) ->
-      ast = impl
-      |> ElixirScript.Output.module_to_name()
-      |> J.identifier
+    Enum.map(impls, fn {impl, impl_for} ->
+      ast =
+        impl
+        |> ElixirScript.Output.module_to_name()
+        |> J.identifier()
 
       Helpers.call(
         J.member_expression(
@@ -108,6 +112,7 @@ defmodule ElixirScript.Translate.Protocol do
     case Module.split(module) do
       ["JS" | rest] ->
         Identifier.make_namespace_members(rest)
+
       _ ->
         Helpers.symbol(module)
     end

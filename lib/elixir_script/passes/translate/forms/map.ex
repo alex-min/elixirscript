@@ -4,43 +4,43 @@ defmodule ElixirScript.Translate.Forms.Map do
   alias ElixirScript.Translate.{Form, Helpers}
 
   def compile({:%{}, _, [{:|, _, [map, new_values]}]}, state) do
-    { map, state } = Form.compile(map, state)
-    data = Enum.map(new_values, fn {x, y} ->
-      J.array_expression([
-        Form.compile!(x, state),
-        Form.compile!(y, state)
-      ])
-    end)
+    {map, state} = Form.compile(map, state)
 
-    ast = Helpers.new(
-      J.identifier("Map"),
-      [
-        J.array_expression(
-          [J.spread_element(map)] ++ data
-        )
-      ]
-    )
+    data =
+      Enum.map(new_values, fn {x, y} ->
+        J.array_expression([
+          Form.compile!(x, state),
+          Form.compile!(y, state)
+        ])
+      end)
 
-    { ast, state }
+    ast =
+      Helpers.new(
+        J.identifier("Map"),
+        [
+          J.array_expression([J.spread_element(map)] ++ data)
+        ]
+      )
+
+    {ast, state}
   end
 
   def compile({:%{}, _, properties}, state) do
-    ast = Helpers.new(
-      J.identifier("Map"),
-      [
-        J.array_expression(
-          Enum.map(properties, fn
-            {x, y} ->
-              J.array_expression(
-                [
+    ast =
+      Helpers.new(
+        J.identifier("Map"),
+        [
+          J.array_expression(
+            Enum.map(properties, fn
+              {x, y} ->
+                J.array_expression([
                   Form.compile!(x, state),
                   Form.compile!(y, state)
-                ]
-              )
-          end)
-        )
-      ]
-    )
+                ])
+            end)
+          )
+        ]
+      )
 
     {ast, state}
   end
@@ -50,12 +50,14 @@ defmodule ElixirScript.Translate.Forms.Map do
   end
 
   def make_property(%ESTree.Literal{value: k}, value) when is_binary(k) do
-    key = case String.contains?(k, "-") do
-      true ->
-        J.literal(k)
-      false ->
-        ElixirScript.Translate.Identifier.make_identifier(k)
-    end
+    key =
+      case String.contains?(k, "-") do
+        true ->
+          J.literal(k)
+
+        false ->
+          ElixirScript.Translate.Identifier.make_identifier(k)
+      end
 
     J.property(key, value)
   end
@@ -67,5 +69,4 @@ defmodule ElixirScript.Translate.Forms.Map do
   def make_shorthand_property(%ESTree.Identifier{} = key) do
     J.property(key, key, :init, true)
   end
-
 end

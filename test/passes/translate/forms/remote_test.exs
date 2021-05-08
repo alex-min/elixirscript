@@ -5,10 +5,14 @@ defmodule ElixirScript.Translate.Forms.Remote.Test do
 
   test "variable counter" do
     ast = {:., [line: 644], [{:fun, [line: 644], nil}]}
-    state = %{function: {:each, nil}, module: Enum, vars: %{:_ => 0, "entry" => 0, "enumerable" => 0, "fun" => 0}}
+
+    state = %{
+      function: {:each, nil},
+      module: Enum,
+      vars: %{:_ => 0, "entry" => 0, "enumerable" => 0, "fun" => 0}
+    }
 
     {js_ast, _} = Form.compile(ast, state)
     assert js_ast == J.identifier("fun0")
   end
-
 end

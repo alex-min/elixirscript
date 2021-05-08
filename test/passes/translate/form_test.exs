@@ -18,20 +18,22 @@ defmodule ElixirScript.Translate.Forms.Test do
 
   property "integers, floats, binaries, and booleans translates to a literal JavaScript AST node",
            %{state: state} do
-    check all value <-
-                StreamData.one_of([
-                  StreamData.integer(),
-                  StreamData.boolean(),
-                  StreamData.binary(),
-                  StreamData.float()
-                ]) do
+    check all(
+            value <-
+              StreamData.one_of([
+                StreamData.integer(),
+                StreamData.boolean(),
+                StreamData.binary(),
+                StreamData.float()
+              ])
+          ) do
       {js_ast, _} = Form.compile(value, state)
       assert js_ast == J.literal(value)
     end
   end
 
   property "atom translates to Symbol.for call", %{state: state} do
-    check all atom <- StreamData.atom(:alphanumeric) do
+    check all(atom <- StreamData.atom(:alphanumeric)) do
       {js_ast, _} = Form.compile(atom, state)
 
       assert js_ast ==
@@ -46,7 +48,7 @@ defmodule ElixirScript.Translate.Forms.Test do
   end
 
   property "tuple translates to new Tuple object", %{state: state} do
-    check all tuple <- StreamData.tuple({StreamData.integer(), StreamData.binary()}) do
+    check all(tuple <- StreamData.tuple({StreamData.integer(), StreamData.binary()})) do
       {js_ast, _} = Form.compile(tuple, state)
 
       assert js_ast ==
@@ -64,7 +66,7 @@ defmodule ElixirScript.Translate.Forms.Test do
   end
 
   property "list translates to a JavaScript Array", %{state: state} do
-    check all list <- StreamData.list_of(StreamData.binary()) do
+    check all(list <- StreamData.list_of(StreamData.binary())) do
       {js_ast, _} = Form.compile(list, state)
       assert js_ast.type == "ArrayExpression"
       assert length(js_ast.elements) == length(list)
@@ -77,8 +79,10 @@ defmodule ElixirScript.Translate.Forms.Test do
   end
 
   property "local function call translates to local JavaScript function call", %{state: state} do
-    check all func <- StreamData.filter(StreamData.atom(:alphanumeric), fn x -> x not in [:fn] end),
-              params <- StreamData.list_of(StreamData.binary()) do
+    check all(
+            func <- StreamData.filter(StreamData.atom(:alphanumeric), fn x -> x not in [:fn] end),
+            params <- StreamData.list_of(StreamData.binary())
+          ) do
       ast = {func, [], params}
 
       str_func =
@@ -102,8 +106,10 @@ defmodule ElixirScript.Translate.Forms.Test do
   end
 
   property "super function call translates to local JavaScript function call" do
-    check all func <- StreamData.atom(:alphanumeric),
-              params <- StreamData.list_of(StreamData.binary()) do
+    check all(
+            func <- StreamData.atom(:alphanumeric),
+            params <- StreamData.list_of(StreamData.binary())
+          ) do
       ast = {:super, [], [{:def, func}] ++ params}
       state = %{function: {func, nil}, vars: %{}}
 
@@ -165,15 +171,15 @@ defmodule ElixirScript.Translate.Forms.Test do
   end
 
   test "calling field on field" do
-    ast =
-      {
-        {:., [line: 16], [
-          {{:., [line: 16], [{:map, [line: 16], nil}, :token_count]}, [line: 16], []},
-          :toLocaleString
-        ]},
-        [line: 16],
-        []
-      }
+    ast = {
+      {:., [line: 16],
+       [
+         {{:., [line: 16], [{:map, [line: 16], nil}, :token_count]}, [line: 16], []},
+         :toLocaleString
+       ]},
+      [line: 16],
+      []
+    }
 
     state = %{function: {:something, nil}, vars: %{}}
 
@@ -207,10 +213,11 @@ defmodule ElixirScript.Translate.Forms.Test do
 
   test "multi bind", %{state: state} do
     ast =
-      {:=, [line: 35], [
-        [{:|, [line: 35], [{:a, [line: 35], nil}, {:_, [line: 35], nil}]}],
-        {:=, [line: 35], [{:b, [line: 35], nil}, [1, 2, 3, 4, 5]]}
-      ]}
+      {:=, [line: 35],
+       [
+         [{:|, [line: 35], [{:a, [line: 35], nil}, {:_, [line: 35], nil}]}],
+         {:=, [line: 35], [{:b, [line: 35], nil}, [1, 2, 3, 4, 5]]}
+       ]}
 
     {js_ast, _} = Form.compile(ast, state)
 

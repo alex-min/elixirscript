@@ -68,7 +68,8 @@ defmodule ElixirScript.FFI do
   defmacro __using__(opts) do
     quote do
       import ElixirScript.FFI
-      Module.register_attribute __MODULE__, :__foreign_info__, persist: true
+      Module.register_attribute(__MODULE__, :__foreign_info__, persist: true)
+
       @__foreign_info__ %{
         path: Macro.underscore(__MODULE__),
         name: unquote(Keyword.get(opts, :name, nil)),
@@ -87,18 +88,19 @@ defmodule ElixirScript.FFI do
   ```
   """
   defmacro defexternal({name, _, args}) do
-    args = Enum.map(args, fn
-      {:\\, meta0, [{name, meta, atom}, value]} ->
-        name = String.to_atom("_" <> Atom.to_string(name))
-        {:\\, meta0, [{name, meta, atom}, value]}
+    args =
+      Enum.map(args, fn
+        {:\\, meta0, [{name, meta, atom}, value]} ->
+          name = String.to_atom("_" <> Atom.to_string(name))
+          {:\\, meta0, [{name, meta, atom}, value]}
 
-      {name, meta, atom} ->
-        name = String.to_atom("_" <> Atom.to_string(name))
-        {name, meta, atom}
+        {name, meta, atom} ->
+          name = String.to_atom("_" <> Atom.to_string(name))
+          {name, meta, atom}
 
-      other ->
-        other
-    end)
+        other ->
+          other
+      end)
 
     quote do
       def unquote(name)(unquote_splicing(args)), do: nil

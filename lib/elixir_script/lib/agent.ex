@@ -2,25 +2,27 @@ defmodule ElixirScript.Agent do
   @moduledoc false
 
   def start(fun, options \\ []) do
-    name = if Keyword.has_key?(options, :name) do
-      Keyword.get(options, :name)
-    else
-      nil
-    end
+    name =
+      if Keyword.has_key?(options, :name) do
+        Keyword.get(options, :name)
+      else
+        nil
+      end
 
     pid = ElixirScript.Core.Store.create(fun.(), name)
-    { :ok, pid }
+    {:ok, pid}
   end
 
   def start_link(fun, options \\ []) do
-    name = if Keyword.has_key?(options, :name) do
-      Keyword.get(options, :name)
-    else
-      nil
-    end
+    name =
+      if Keyword.has_key?(options, :name) do
+        Keyword.get(options, :name)
+      else
+        nil
+      end
 
     pid = ElixirScript.Core.Store.create(fun.(), name)
-    { :ok, pid }
+    {:ok, pid}
   end
 
   def stop(agent) do
@@ -45,5 +47,4 @@ defmodule ElixirScript.Agent do
     ElixirScript.Core.Store.update(agent, new_state)
     val
   end
-
 end

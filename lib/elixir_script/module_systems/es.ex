@@ -3,14 +3,15 @@ defmodule ElixirScript.ModuleSystems.ES do
   alias ESTree.Tools.Builder, as: JS
 
   def build(js_imports, body, exports) do
-    imports = js_imports
-    |> Enum.filter(fn
-      {_module, _name, nil, _import_path} -> false
-      _ -> true
-    end)
-    |> Enum.map(fn
-      {_module, name, _path, import_path} -> import_module(name, import_path)
-    end)
+    imports =
+      js_imports
+      |> Enum.filter(fn
+        {_module, _name, nil, _import_path} -> false
+        _ -> true
+      end)
+      |> Enum.map(fn
+        {_module, name, _path, import_path} -> import_module(name, import_path)
+      end)
 
     export = if is_nil(exports), do: [], else: [export_module(exports)]
     imports ++ body ++ export
@@ -30,9 +31,7 @@ defmodule ElixirScript.ModuleSystems.ES do
   defp import_module(import_name, from) do
     js_module_name = JS.identifier(import_name)
 
-    import_specifier = JS.import_default_specifier(
-      js_module_name
-    )
+    import_specifier = JS.import_default_specifier(js_module_name)
 
     do_import_module([import_specifier], from)
   end
@@ -47,5 +46,4 @@ defmodule ElixirScript.ModuleSystems.ES do
   defp export_module(exported_object) do
     JS.export_default_declaration(exported_object)
   end
-
 end

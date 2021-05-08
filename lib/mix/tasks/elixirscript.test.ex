@@ -8,12 +8,14 @@ defmodule Mix.Tasks.Elixirscript.Test do
   @preferred_cli_env :test
 
   def run(_args) do
-    Mix.Task.run "app.start"
+    Mix.Task.run("app.start")
 
     path = Path.join([default_test_path(), "**", "*_test.exs"])
+
     case ElixirScript.Test.start(path) do
       :error ->
         System.at_exit(fn _ -> exit({:shutdown, 1}) end)
+
       :ok ->
         :ok
     end

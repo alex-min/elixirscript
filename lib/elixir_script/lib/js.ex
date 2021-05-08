@@ -14,32 +14,32 @@ defmodule ElixirScript.JS do
   ElixirScript.JS.new User, ["first_name", "last_name"]
   ```
   """
-  defexternal new(module, params)
+  defexternal(new(module, params))
 
   @doc """
   Returns the type of the given value
   """
-  defexternal typeof(value)
+  defexternal(typeof(value))
 
   @doc """
   Determines if value is an instance of type.
   """
-  defexternal instanceof(value, type)
+  defexternal(instanceof(value, type))
 
   @doc """
   Throws the term given
   """
-  defexternal throw(term)
+  defexternal(throw(term))
 
   @doc """
   Creates a breakpoint for JavaScript debuggers to stop at
   """
-  defexternal debugger()
+  defexternal(debugger())
 
   @doc """
   The current JavaScript context
   """
-  defexternal this()
+  defexternal(this())
 
   @doc """
   Mutates an existing JavaScript object.
@@ -48,7 +48,7 @@ defmodule ElixirScript.JS do
   ElixirScript.JS.mutate elem, "width", 100
   ```
   """
-  defexternal mutate(object, key, value)
+  defexternal(mutate(object, key, value))
 
   @doc """
   Takes the given map and returns an object
@@ -59,7 +59,7 @@ defmodule ElixirScript.JS do
   ElixirScript.JS.map_to_object(%{my: "map"})
   ```
   """
-  defexternal map_to_object(map)
+  defexternal(map_to_object(map))
 
   @doc """
   Takes the given map and returns an object
@@ -70,9 +70,9 @@ defmodule ElixirScript.JS do
   ElixirScript.JS.map_to_object(%{my: "map"}, keys: :string)
   ```
   """
-  defexternal map_to_object(map, options)
+  defexternal(map_to_object(map, options))
 
-    @doc """
+  @doc """
   Takes the given object and returns a map
   Options include [{:keys, :atom}, {:recurse_array, true}]
 
@@ -80,7 +80,7 @@ defmodule ElixirScript.JS do
   ElixirScript.JS.object_to_object({my: "object"})
   ```
   """
-  defexternal object_to_map(object)
+  defexternal(object_to_map(object))
 
   @doc """
   Takes the given object and returns a map
@@ -90,5 +90,5 @@ defmodule ElixirScript.JS do
   ElixirScript.JS.object_to_object({my: "map"}, keys: :atom)
   ```
   """
-  defexternal object_to_map(object, options)
+  defexternal(object_to_map(object, options))
 end

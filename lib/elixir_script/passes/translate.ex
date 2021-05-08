@@ -10,10 +10,13 @@ defmodule ElixirScript.Translate do
   def execute(modules, pid) do
     modules
     |> List.wrap()
-    |> Task.async_stream(fn
-      {module, info} ->
-        ElixirScript.Translate.Module.compile(module, info, pid)
-    end, timeout: 10_000)
+    |> Task.async_stream(
+      fn
+        {module, info} ->
+          ElixirScript.Translate.Module.compile(module, info, pid)
+      end,
+      timeout: 10_000
+    )
     |> Stream.run()
   end
 end

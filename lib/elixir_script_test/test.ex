@@ -89,12 +89,13 @@ defmodule ElixirScript.Test do
     output = Path.join([System.tmp_dir!(), "elixirscript_tests"])
     File.mkdir_p!(output)
 
-    ElixirScript.Compiler.compile(path, [output: output])
+    ElixirScript.Compiler.compile(path, output: output)
 
-    js_files = output
-    |> Path.expand
-    |> Path.join("Elixir.*.js")
-    |> Path.wildcard()
+    js_files =
+      output
+      |> Path.expand()
+      |> Path.join("Elixir.*.js")
+      |> Path.wildcard()
 
     exit_status = ElixirScript.Test.Runner.Node.run(js_files)
 
@@ -104,6 +105,7 @@ defmodule ElixirScript.Test do
     case exit_status do
       0 ->
         :ok
+
       _ ->
         :error
     end

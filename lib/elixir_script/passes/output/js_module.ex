@@ -9,5 +9,4 @@ defmodule ElixirScript.Output.JSModule do
 
     [imports] ++ body ++ [exports]
   end
-
 end

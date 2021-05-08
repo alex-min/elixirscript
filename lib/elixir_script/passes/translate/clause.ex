@@ -9,37 +9,39 @@ defmodule ElixirScript.Translate.Clause do
   alias ElixirScript.Translate.Forms.Pattern
   alias ElixirScript.Translate.Function
 
-  def compile({ _, args, guards, body}, state) do
+  def compile({_, args, guards, body}, state) do
     {patterns, params, state} = Pattern.compile(args, state)
     guard = compile_guard(params, guards, state)
 
     {body, _state} = Function.compile_block(body, state)
 
-    body = body
-    |> return_last_statement
-    |> Function.update_last_call(state)
+    body =
+      body
+      |> return_last_statement
+      |> Function.update_last_call(state)
 
-    ast = Helpers.call(
-      J.member_expression(
-        Helpers.patterns(),
-        J.identifier("clause")
-      ),
-      [
-        J.array_expression(patterns),
-        Helpers.arrow_function(
-          params,
-          J.block_statement(body)
+    ast =
+      Helpers.call(
+        J.member_expression(
+          Helpers.patterns(),
+          J.identifier("clause")
         ),
-        guard
-      ]
-    )
+        [
+          J.array_expression(patterns),
+          Helpers.arrow_function(
+            params,
+            J.block_statement(body)
+          ),
+          guard
+        ]
+      )
 
-    { ast, state }
+    {ast, state}
   end
 
-  def compile({:->, _, [[{:when, _, params}], body ]}, state) do
+  def compile({:->, _, [[{:when, _, params}], body]}, state) do
     guards = List.last(params)
-    params = params |> Enum.reverse |> tl |> Enum.reverse
+    params = params |> Enum.reverse() |> tl |> Enum.reverse()
 
     compile({[], params, guards, body}, state)
   end
@@ -50,10 +52,10 @@ defmodule ElixirScript.Translate.Clause do
 
   def return_last_statement(body) do
     body
-    |> List.wrap
-    |> Enum.reverse
+    |> List.wrap()
+    |> Enum.reverse()
     |> do_return_last_statement
-    |> Enum.reverse
+    |> Enum.reverse()
   end
 
   defp do_return_last_statement([%ESTree.ThrowStatement{} = ast]) do
@@ -63,16 +65,18 @@ defmodule ElixirScript.Translate.Clause do
   defp do_return_last_statement([%ESTree.VariableDeclaration{} = head | tail]) do
     declaration = hd(head.declarations).id
 
-    return_statement = case declaration do
-      %ESTree.ArrayPattern{elements: elements} ->
-        if length(elements) == 1 do
-          J.return_statement(hd(declaration.elements))
-        else
-          J.return_statement(J.array_expression(declaration.elements))
-        end
-      _ ->
-        J.return_statement(declaration)
-    end
+    return_statement =
+      case declaration do
+        %ESTree.ArrayPattern{elements: elements} ->
+          if length(elements) == 1 do
+            J.return_statement(hd(declaration.elements))
+          else
+            J.return_statement(J.array_expression(declaration.elements))
+          end
+
+        _ ->
+          J.return_statement(declaration)
+      end
 
     [return_statement, head] ++ tail
   end
@@ -96,19 +100,19 @@ defmodule ElixirScript.Translate.Clause do
   def compile_guard(params, guards, state) do
     state = Map.put(state, :in_guard, true)
 
-    guards = guards
-    |> List.wrap
-    |> Enum.reverse
-    |> process_guards
-    |> Form.compile!(state)
+    guards =
+      guards
+      |> List.wrap()
+      |> Enum.reverse()
+      |> process_guards
+      |> Form.compile!(state)
 
     Helpers.arrow_function(
       params,
       J.block_statement([
-            J.return_statement(guards)
-          ])
+        J.return_statement(guards)
+      ])
     )
-
   end
 
   defp process_guards([]) do

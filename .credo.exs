@@ -58,12 +58,10 @@
         {Credo.Check.Design.TagTODO, exit_status: 2},
         {Credo.Check.Design.TagFIXME},
         {Credo.Check.Design.AliasUsage, false},
-
         {Credo.Check.Readability.FunctionNames},
         {Credo.Check.Readability.LargeNumbers},
         {Credo.Check.Readability.MaxLineLength,
-         priority: :low, max_length: 80, ignore_specs: true
-        },
+         priority: :low, max_length: 80, ignore_specs: true},
         {Credo.Check.Readability.ModuleAttributeNames},
         {Credo.Check.Readability.ModuleDoc},
         {Credo.Check.Readability.ModuleNames},
@@ -78,7 +76,6 @@
         {Credo.Check.Readability.TrailingWhiteSpace},
         {Credo.Check.Readability.VariableNames},
         {Credo.Check.Refactor.DoubleBooleanNegation},
-
         {Credo.Check.Refactor.ABCSize},
         {Credo.Check.Refactor.CondStatements},
         {Credo.Check.Refactor.CyclomaticComplexity},
@@ -90,7 +87,6 @@
         {Credo.Check.Refactor.PipeChainStart, false},
         {Credo.Check.Refactor.UnlessWithElse},
         {Credo.Check.Refactor.VariableRebinding, false},
-
         {Credo.Check.Warning.BoolOperationOnSameValues},
         {Credo.Check.Warning.IExPry},
         {Credo.Check.Warning.IoInspect},
@@ -107,7 +103,7 @@
         {Credo.Check.Warning.UnusedPathOperation},
         {Credo.Check.Warning.UnusedRegexOperation},
         {Credo.Check.Warning.UnusedStringOperation},
-        {Credo.Check.Warning.UnusedTupleOperation},
+        {Credo.Check.Warning.UnusedTupleOperation}
       ]
     }
   ]

@@ -15,92 +15,108 @@ defmodule ElixirScript.Translate.Forms.Try do
     translated_body = JS.block_statement(translated_body)
     try_block = Helpers.arrow_function([], translated_body)
 
-    rescue_block = if rescue_block do
-      process_rescue_block(rescue_block, state)
-    else
-      JS.identifier(:null)
-    end
+    rescue_block =
+      if rescue_block do
+        process_rescue_block(rescue_block, state)
+      else
+        JS.identifier(:null)
+      end
 
-    catch_block = if catch_block do
-      Form.compile!({:fn, [], catch_block}, state)
-    else
-      JS.identifier(:null)
-    end
+    catch_block =
+      if catch_block do
+        Form.compile!({:fn, [], catch_block}, state)
+      else
+        JS.identifier(:null)
+      end
 
-    after_block = if after_block do
-      process_after_block(after_block, state)
-    else
-      JS.identifier(:null)
-    end
+    after_block =
+      if after_block do
+        process_after_block(after_block, state)
+      else
+        JS.identifier(:null)
+      end
 
-    else_block = if else_block do
-      Form.compile!({:fn, [], else_block}, state)
-    else
-      JS.identifier(:null)
-    end
+    else_block =
+      if else_block do
+        Form.compile!({:fn, [], else_block}, state)
+      else
+        JS.identifier(:null)
+      end
 
-    js_ast = Helpers.call(
-      JS.member_expression(
-        Helpers.special_forms(),
-        JS.identifier("_try")
-      ),
-      [
-        try_block,
-        rescue_block,
-        catch_block,
-        else_block,
-        after_block
-      ]
-    )
+    js_ast =
+      Helpers.call(
+        JS.member_expression(
+          Helpers.special_forms(),
+          JS.identifier("_try")
+        ),
+        [
+          try_block,
+          rescue_block,
+          catch_block,
+          else_block,
+          after_block
+        ]
+      )
 
-    { js_ast, state }
+    {js_ast, state}
   end
 
   defp process_rescue_block(rescue_block, state) do
-    processed_clauses = Enum.map(rescue_block, fn
-      {:->, _, [ [{:in, _, [{:_, context, atom}, names]}], body]} ->
-        names = Enum.map(names, &make_exception_ast(&1))
+    processed_clauses =
+      Enum.map(rescue_block, fn
+        {:->, _, [[{:in, _, [{:_, context, atom}, names]}], body]} ->
+          names = Enum.map(names, &make_exception_ast(&1))
 
-        param = {:_e, context, atom}
-        reason_call = {{:., [], [param, :__reason]}, [], []}
-        reason_call = {{:., [], [reason_call, :__struct__]}, [], []}
-        reason_call = {{:., [], [reason_call, :__MODULE__]}, [], []}
+          param = {:_e, context, atom}
+          reason_call = {{:., [], [param, :__reason]}, [], []}
+          reason_call = {{:., [], [reason_call, :__struct__]}, [], []}
+          reason_call = {{:., [], [reason_call, :__MODULE__]}, [], []}
 
-        {ast, _} = Clause.compile({
-          [],
-          [param],
-          [{{:., [], [Enum, :member?]}, [], [names, reason_call]}],
-          body},
-          state)
-        ast
-      {:->, _, [ [{:in, _, [param, names]}], body]} ->
-        names = Enum.map(names, &make_exception_ast(&1))
+          {ast, _} =
+            Clause.compile(
+              {
+                [],
+                [param],
+                [{{:., [], [Enum, :member?]}, [], [names, reason_call]}],
+                body
+              },
+              state
+            )
 
-        reason_call = {{:., [], [param, :__reason]}, [], []}
-        reason_call = {{:., [], [reason_call, :__struct__]}, [], []}
-        reason_call = {{:., [], [reason_call, :__MODULE__]}, [], []}
+          ast
 
-        {ast, _} = Clause.compile({
-          [],
-          [param],
-          [{{:., [], [Enum, :member?]}, [], [names, reason_call]}],
-          body},
-          state)
-        ast
-      {:->, _, [ [param], body]} ->
-        {ast, _} = Clause.compile({[], [param], [], body}, state)
-        ast
+        {:->, _, [[{:in, _, [param, names]}], body]} ->
+          names = Enum.map(names, &make_exception_ast(&1))
+
+          reason_call = {{:., [], [param, :__reason]}, [], []}
+          reason_call = {{:., [], [reason_call, :__struct__]}, [], []}
+          reason_call = {{:., [], [reason_call, :__MODULE__]}, [], []}
+
+          {ast, _} =
+            Clause.compile(
+              {
+                [],
+                [param],
+                [{{:., [], [Enum, :member?]}, [], [names, reason_call]}],
+                body
+              },
+              state
+            )
+
+          ast
+
+        {:->, _, [[param], body]} ->
+          {ast, _} = Clause.compile({[], [param], [], body}, state)
+          ast
       end)
 
-
-      Helpers.call(
-        JS.member_expression(
-          Helpers.patterns(),
-          JS.identifier("defmatch")
-        ),
-        processed_clauses
-      )
-
+    Helpers.call(
+      JS.member_expression(
+        Helpers.patterns(),
+        JS.identifier("defmatch")
+      ),
+      processed_clauses
+    )
   end
 
   defp make_exception_ast(name) do

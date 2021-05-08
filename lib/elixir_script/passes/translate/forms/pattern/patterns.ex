@@ -5,39 +5,39 @@ defmodule ElixirScript.Translate.Forms.Pattern.Patterns do
   alias ElixirScript.Translate.Helpers
 
   @parameter J.member_expression(
-    Helpers.patterns(),
-    J.identifier(:variable)
-  )
+               Helpers.patterns(),
+               J.identifier(:variable)
+             )
 
   @head_tail J.member_expression(
-    Helpers.patterns(),
-    J.identifier(:headTail)
-  )
+               Helpers.patterns(),
+               J.identifier(:headTail)
+             )
 
   @starts_with J.member_expression(
-    Helpers.patterns(),
-    J.identifier(:startsWith)
-  )
+                 Helpers.patterns(),
+                 J.identifier(:startsWith)
+               )
 
   @capture J.member_expression(
-    Helpers.patterns(),
-    J.identifier(:capture)
-  )
+             Helpers.patterns(),
+             J.identifier(:capture)
+           )
 
   @bound J.member_expression(
-    Helpers.patterns(),
-    J.identifier(:bound)
-  )
+           Helpers.patterns(),
+           J.identifier(:bound)
+         )
 
   @_type J.member_expression(
-    Helpers.patterns(),
-    J.identifier(:type)
-  )
+           Helpers.patterns(),
+           J.identifier(:type)
+         )
 
   @bitstring_match J.member_expression(
-    Helpers.patterns(),
-    J.identifier(:bitStringMatch)
-  )
+                     Helpers.patterns(),
+                     J.identifier(:bitStringMatch)
+                   )
 
   def parameter() do
     Helpers.call(

@@ -221,9 +221,7 @@ defmodule ElixirScript.Translate.Form do
     })
 
     Logger.warn(fn ->
-      "ElixirScript: receive not supported, Module: #{inspect(state.module)}, Function: #{
-        function
-      }, Line: #{line}"
+      "ElixirScript: receive not supported, Module: #{inspect(state.module)}, Function: #{function}, Line: #{line}"
     end)
 
     Receive.compile(blocks, state)

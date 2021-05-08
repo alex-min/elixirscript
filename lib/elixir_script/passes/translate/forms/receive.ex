@@ -8,29 +8,32 @@ defmodule ElixirScript.Translate.Forms.Receive do
   to a stub function for now
   """
   def compile(blocks, state) do
-    receive_block = blocks
-    |> Keyword.get(:do, [])
-    |> Enum.map(fn x ->
-      Clause.compile(x, state)
-      |> elem(0)
-    end)
-    |> List.flatten
-    |> J.array_expression()
+    receive_block =
+      blocks
+      |> Keyword.get(:do, [])
+      |> Enum.map(fn x ->
+        Clause.compile(x, state)
+        |> elem(0)
+      end)
+      |> List.flatten()
+      |> J.array_expression()
 
-    receive_function = J.member_expression(
-      Helpers.special_forms(),
-      J.identifier("receive")
-    )
+    receive_function =
+      J.member_expression(
+        Helpers.special_forms(),
+        J.identifier("receive")
+      )
 
     after_block = Keyword.get(blocks, :after, nil)
     args = [receive_block] ++ process_after(after_block, state)
 
-    ast = Helpers.call(
-      receive_function,
-      args
-    )
+    ast =
+      Helpers.call(
+        receive_function,
+        args
+      )
 
-    { ast, state }
+    {ast, state}
   end
 
   defp process_after(nil, _) do
@@ -41,10 +44,11 @@ defmodule ElixirScript.Translate.Forms.Receive do
     timeout = Form.compile!(timeout, state)
     {body, _state} = Function.compile_block(body, state)
 
-    function = Helpers.arrow_function(
-      [],
-      J.block_statement(List.wrap(body))
-    )
+    function =
+      Helpers.arrow_function(
+        [],
+        J.block_statement(List.wrap(body))
+      )
 
     [timeout, function]
   end

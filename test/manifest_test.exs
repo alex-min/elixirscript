@@ -8,5 +8,4 @@ defmodule ElixirScript.Manifest.Test do
     Manifest.write_manifest(path, result)
     assert File.exists?(path)
   end
-
 end
