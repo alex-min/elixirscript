@@ -52,7 +52,7 @@ defmodule ElixirScript.Translate.Identifier do
   def filter_name(name) do
     name = to_string(name)
 
-    if name in reserved_keywords_to_string do
+    if name in reserved_keywords_to_string() do
       "__#{name}__"
     else
       if String.contains?(name, ["?", "!", " "]) do

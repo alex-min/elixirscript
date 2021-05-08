@@ -221,7 +221,9 @@ defmodule ElixirScript.Translate.Form do
     })
 
     Logger.warn(fn ->
-      "ElixirScript: receive not supported, Module: #{inspect(state.module)}, Function: #{function}, Line: #{line}"
+      "ElixirScript: receive not supported, Module: #{inspect(state.module)}, Function: #{
+        function
+      }, Line: #{line}"
     end)
 
     Receive.compile(blocks, state)
@@ -433,7 +435,7 @@ defmodule ElixirScript.Translate.Form do
     {ElixirScript.Translate.Identifier.make_identifier(var), state}
   end
 
-  def compile(function, state) do
+  def compile(_function, state) do
     # TODO(Alex): some Inspect.inspect/2 arrives here (?)
     {nil, state}
   end
