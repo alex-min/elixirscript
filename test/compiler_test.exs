@@ -2,18 +2,18 @@ defmodule ElixirScript.Compiler.Test do
   use ExUnit.Case
 
   test "Can compile one entry module" do
-    result = ElixirScript.Compiler.compile(String)
-    assert result |> Map.to_list() |> hd |> elem(1) |> Map.get(:js_code) |> is_binary
+    result = ElixirScript.Compiler.compile_output(String)
+    assert result |> is_binary
   end
 
   test "Can compile multiple entry modules" do
-    result = ElixirScript.Compiler.compile([Atom, String, Agent])
-    assert result |> Map.to_list() |> hd |> elem(1) |> Map.get(:js_code) |> is_binary
+    result = ElixirScript.Compiler.compile_output([Atom, String, Agent])
+    assert result |> is_binary
   end
 
   test "Output" do
-    result = ElixirScript.Compiler.compile(Atom, [])
-    assert result |> Map.to_list() |> hd |> elem(1) |> Map.get(:js_code) =~ "export default"
+    result = ElixirScript.Compiler.compile_output(Atom, [])
+    assert result =~ "export default"
   end
 
   test "compile file" do

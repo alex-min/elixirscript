@@ -1,8 +1,8 @@
-const rollup = require('rollup')
-const babel = require('rollup-plugin-babel')
-const nodeResolve = require('rollup-plugin-node-resolve')
-const commonjs = require('rollup-plugin-commonjs')
-const minify = require('rollup-plugin-babel-minify')
+import rollup from 'rollup'
+import babel from 'rollup-plugin-babel'
+import nodeResolve from 'rollup-plugin-node-resolve'
+import commonjs from 'rollup-plugin-commonjs'
+import minify from 'rollup-plugin-babel-minify'
 
 const plugins = [
   nodeResolve({

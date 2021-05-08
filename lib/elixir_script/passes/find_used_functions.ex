@@ -7,7 +7,7 @@ defmodule ElixirScript.FindUsedFunctions do
   documenting the functions used. The data collected about used functions
   is used to filter only the used functions for compilation
   """
-  @spec execute([atom], pid) :: nil
+  @spec execute([atom], pid) :: :ok
   def execute(entry_modules, pid) do
     entry_modules
     |> List.wrap()

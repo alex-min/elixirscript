@@ -87,6 +87,7 @@ defmodule ElixirScript.Test do
   @spec start(binary(), map()) :: :ok | :error
   def start(path, _opts \\ %{}) do
     output = Path.join([System.tmp_dir!(), "elixirscript_tests"])
+    File.rm_rf(output)
     File.mkdir_p!(output)
     File.write!("#{output}/package.json", "{\"type\": \"module\"}")
 
@@ -98,17 +99,6 @@ defmodule ElixirScript.Test do
       |> Path.join("Elixir.*.js")
       |> Path.wildcard()
 
-    exit_status = ElixirScript.Test.Runner.Node.run(js_files)
-
-    # Delete directory at the end
-    File.rm_rf!(output)
-
-    case exit_status do
-      0 ->
-        :ok
-
-      _ ->
-        :error
-    end
+    ElixirScript.Test.Runner.Node.run(js_files)
   end
 end

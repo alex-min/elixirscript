@@ -15,6 +15,12 @@ defmodule ElixirScript.Test.Runner.Node do
         into: IO.stream(:stdio, :line)
       )
 
-    exit_status
+    case exit_status do
+      0 ->
+        :ok
+
+      _ ->
+        :error
+    end
   end
 end

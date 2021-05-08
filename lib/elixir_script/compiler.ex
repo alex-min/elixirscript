@@ -35,12 +35,17 @@ defmodule ElixirScript.Compiler do
   alias ElixirScript.ModuleSystems.ES
   alias Kernel.ParallelCompiler
 
+  @spec compile_output(compiler_input, output: binary()) :: binary
+  def compile_output(path, opts \\ []) do
+    compile(path, opts) |> Map.to_list() |> hd |> elem(1) |> Map.get(:js_code)
+  end
+
   @type compiler_input ::
           atom
           | [atom]
           | binary
 
-  @spec compile(compiler_input, []) :: map
+  @spec compile(compiler_input, output: binary()) :: map
   def compile(path, opts \\ [])
 
   def compile(path, opts) when is_binary(path) do

@@ -10,5 +10,5 @@ defmodule ElixirScript.Test.Runner do
   representing the success or failure of the
   tests
   """
-  @callback run([binary]) :: integer
+  @callback run([binary]) :: :error | :ok
 end
