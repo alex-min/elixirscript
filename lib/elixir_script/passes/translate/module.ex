@@ -153,7 +153,7 @@ defmodule ElixirScript.Translate.Module do
   end
 
   @doc """
-  Determins if the given atom
+  Determines if the given atom
   is an Elixir function
   """
   def is_elixir_module(module) when is_atom(module) do

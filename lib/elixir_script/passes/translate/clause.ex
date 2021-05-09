@@ -9,6 +9,9 @@ defmodule ElixirScript.Translate.Clause do
   alias ElixirScript.Translate.Forms.Pattern
   alias ElixirScript.Translate.Function
 
+  @doc """
+   Handles translation of all of the clause ASTs
+  """
   def compile({_, args, guards, body}, state) do
     {patterns, params, state} = Pattern.compile(args, state)
     guard = compile_guard(params, guards, state)

@@ -9,6 +9,7 @@ async function start(files) {
   };
 
   for (const file of files) {
+    // TODO(alex): fix this spec
     if (!file.includes('Elixir.ElixirScript.Integration.Test.js')) {
       const mod = await import(file);
       if (mod.default.__elixirscript_test_module__) {

@@ -202,7 +202,8 @@ defmodule ElixirScript.FindUsedFunctions do
     if rescue_block do
       Enum.each(rescue_block, fn
         {:->, _, [[{:in, _, [param, names]}], body]} ->
-          walk({[], [param], [{{:., [], [Enum, :member?]}, [], [param, names]}], body}, state)
+          # TODO: investigate walk
+          walk({[], [param], [{{:., [], [Enum, :member?]}, [], [param, names]}, body]}, state)
 
         {:->, _, [[param], body]} ->
           walk({[], [param], [], body}, state)
@@ -294,7 +295,7 @@ defmodule ElixirScript.FindUsedFunctions do
     walk(params, state)
   end
 
-  defp walk(_, _) do
+  defp walk(_unused1, _unused2) do
     nil
   end
 
