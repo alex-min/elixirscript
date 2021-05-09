@@ -33,7 +33,8 @@ defmodule ElixirScript.Translate.Forms.Remote do
     :orddict,
     :filelib,
     :net_adm,
-    :net_kernel
+    :net_kernel,
+    IO
   ]
 
   @doc """
