@@ -66,7 +66,7 @@ defmodule ElixirScript.Translate.Module do
       end)
 
     used_defs =
-      if Keyword.has_key?(attrs, :protocol_impl) or used == nil do
+      if Keyword.has_key?(attrs, :__impl__) or used == nil do
         reachable_defs
       else
         Enum.filter(reachable_defs, fn
